@@ -1,0 +1,30 @@
+issues:
+  include:
+    # Comments
+    - EXC0002
+    - EXC0011
+    - EXC0012
+    - EXC0013
+    - EXC0014
+    - EXC0015
+
+linters:
+  enable-all: true
+  disable:
+    # Disable deprecated
+    - scopelint
+    - maligned
+    - golint
+    - interfacer
+    # Don't care about using fmt
+    - forbidigo
+    # Don't care about TODOs
+    - godox
+    # gofmt is fine
+    - gofumpt
+    # Existing linters do enough to worry about cuddling for return
+    - nlreturn
+    # We don't control the definition of JSON formats for these programs
+    - tagliatelle
+    # Doesn't seem to work very well at present
+    - structcheck
