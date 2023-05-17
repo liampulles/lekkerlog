@@ -25,6 +25,7 @@ type log struct {
 	Level   string  `json:"level"`
 	Message string  `json:"message"`
 	Time    LogTime `json:"time"`
+	TraceID string  `json:"trace_id"`
 	More    map[string]interface{}
 }
 
@@ -40,6 +41,7 @@ func parse(jsonLine []byte) (l log, err error) {
 	delete(l.More, "level")
 	delete(l.More, "message")
 	delete(l.More, "time")
+	delete(l.More, "trace_id")
 
 	return
 }
@@ -88,8 +90,12 @@ func format(l log) string {
 			}
 			moreSegs[i] = fmt.Sprintf("%s=%v", boldGreen(k), v)
 		}
-		sort.Strings(moreSegs)
-		segs = append(segs, boldMagenta("|>"), strings.Join(moreSegs, " "))
+		sort.Slice(moreSegs, func(i, j int) bool { return len(moreSegs[i]) < len(moreSegs[j]) })
+		segs = append(segs, boldMagenta("⭕"), strings.Join(moreSegs, " "))
+	}
+
+	if l.TraceID != "" {
+		segs = append(segs, cyan("trace_id")+"="+l.TraceID)
 	}
 
 	return strings.Join(segs, " ") + "\n"
