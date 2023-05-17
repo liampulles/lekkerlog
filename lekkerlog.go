@@ -61,7 +61,7 @@ var (
 
 var emptyTime = time.Time{}
 
-const timeFormat = "2006/01/02 15:04:05.999"
+const timeFormat = "2006/01/02 15:04:05"
 
 func format(l log) string {
 	var segs []string
