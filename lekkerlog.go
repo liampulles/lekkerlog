@@ -134,6 +134,13 @@ func toPairs(m map[string]interface{}) []pair {
 type LogTime time.Time
 
 func (lt *LogTime) UnmarshalJSON(data []byte) error {
+	// Try as normal time
+	var t time.Time
+	if err := t.UnmarshalJSON(data); err == nil {
+		*lt = LogTime(t)
+		return nil
+	}
+
 	// Try as unix time
 	i, err := unmarshalBigInt(data)
 	if err == nil {
@@ -156,6 +163,7 @@ func (lt *LogTime) UnmarshalJSON(data []byte) error {
 	}
 
 	// No other options - ignore then.
+	fmt.Println("<lekker: bad time>", string(data))
 	return nil
 }
 
