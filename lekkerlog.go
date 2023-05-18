@@ -70,7 +70,7 @@ func format(l log) string {
 
 	t := time.Time(l.Time)
 	if t != emptyTime {
-		segs = append(segs, blue(t.Local().Format(timeFormat)))
+		segs = append(segs, cyan(t.Local().Format(timeFormat)))
 	}
 	if l.Level != "" {
 		segs = append(segs, boldWhite("[")+formatLevel(l.Level)+boldWhite("]"))
@@ -91,7 +91,7 @@ func format(l log) string {
 			moreSegs[i] = fmt.Sprintf("%s=%v", boldGreen(k), v)
 		}
 		sort.Slice(moreSegs, func(i, j int) bool { return len(moreSegs[i]) < len(moreSegs[j]) })
-		segs = append(segs, boldMagenta("⭕"), strings.Join(moreSegs, " "))
+		segs = append(segs, boldMagenta(">>"), strings.Join(moreSegs, " "))
 	}
 
 	if l.TraceID != "" {
