@@ -1,7 +1,7 @@
 # Install
 
 ```bash
-go install github.com/liampulles/lekkerlog/cmd/lekker
+go install github.com/liampulles/lekkerlog/cmd/lekker@latest
 ```
 
 # Use

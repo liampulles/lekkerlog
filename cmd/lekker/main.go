@@ -10,6 +10,13 @@ import (
 )
 
 func main() {
+	// Only continue if being piped in
+	fi, _ := os.Stdin.Stat()
+	if (fi.Mode() & os.ModeCharDevice) != 0 {
+		fmt.Println("Try piping in some JSON logs to lekker! zerolog format is ideal.")
+		os.Exit(0)
+	}
+
 	// Stream input, process, write output.
 	r := bufio.NewReader(os.Stdin)
 	s, e := readln(r)
