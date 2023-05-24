@@ -16,7 +16,7 @@ func Prettify(jsonLine []byte) string {
 	if err != nil {
 		// Can't parse -> resort to standard output.
 		// TODO: Create a good secondary formatter
-		return fmt.Sprint(red(err.Error()), string(jsonLine), "\n")
+		return string(jsonLine) + "\n"
 	}
 	return format(l)
 }
@@ -86,6 +86,10 @@ func format(l log) string {
 			i++
 			if m, ok := v.(map[string]interface{}); ok {
 				j, _ := json.Marshal(m)
+				v = string(j)
+			}
+			if s, ok := v.([]any); ok {
+				j, _ := json.Marshal(s)
 				v = string(j)
 			}
 			moreSegs[i] = fmt.Sprintf("%s=%v", boldGreen(k), v)
