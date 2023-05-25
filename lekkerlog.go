@@ -1,7 +1,6 @@
 package lekkerlog
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/big"
 	"sort"
@@ -9,7 +8,10 @@ import (
 	"time"
 
 	"github.com/fatih/color"
+	jsoniter "github.com/json-iterator/go"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 func Prettify(jsonLine []byte) string {
 	l, err := parse(jsonLine)
