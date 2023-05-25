@@ -27,9 +27,12 @@ type log struct {
 	Time    LogTime `json:"time"`
 	TraceID string  `json:"trace_id"`
 	More    map[string]interface{}
+	Raw     []byte
 }
 
 func parse(jsonLine []byte) (l log, err error) {
+	l.Raw = jsonLine
+
 	// Base
 	err = json.Unmarshal(jsonLine, &l)
 	if err != nil {
@@ -65,21 +68,34 @@ var emptyTime = time.Time{}
 
 const timeFormat = "2006/01/02 15:04:05"
 
+// Found through personal testing - I set a bit higher than the highest I've observed.
+// It approaches 1 as the size of the log grows.
+const roughSizeFactor = 1.3
+
 func format(l log) string {
-	var segs []string
+	var b strings.Builder
+	// Use the size of the original json as a rough guide for capacity
+	b.Grow(int(float64(len(l.Raw)) * roughSizeFactor))
+	with := func(str string) {
+		if b.Len() > 0 {
+			b.WriteByte(' ')
+		}
+		b.WriteString(str)
+	}
 
 	t := time.Time(l.Time)
 	if t != emptyTime {
-		segs = append(segs, cyan(t.Local().Format(timeFormat)))
+		with(cyan(t.Local().Format(timeFormat)))
 	}
 	if l.Level != "" {
-		segs = append(segs, boldWhite("[")+formatLevel(l.Level)+boldWhite("]"))
+		with(boldWhite("[") + formatLevel(l.Level) + boldWhite("]"))
 	}
 	if l.Message != "" {
-		segs = append(segs, boldWhite(l.Message))
+		with(boldWhite(l.Message))
 	}
 
 	if len(l.More) > 0 {
+		with(boldMagenta(">>"))
 		moreSegs := make([]string, len(l.More))
 		i := -1
 		for k, v := range l.More {
@@ -95,14 +111,17 @@ func format(l log) string {
 			moreSegs[i] = fmt.Sprintf("%s=%v", boldGreen(k), v)
 		}
 		sort.Slice(moreSegs, func(i, j int) bool { return len(moreSegs[i]) < len(moreSegs[j]) })
-		segs = append(segs, boldMagenta(">>"), strings.Join(moreSegs, " "))
+		for _, seg := range moreSegs {
+			with(seg)
+		}
 	}
 
 	if l.TraceID != "" {
-		segs = append(segs, cyan("trace_id")+"="+l.TraceID)
+		with(cyan("trace_id") + "=" + l.TraceID)
 	}
 
-	return strings.Join(segs, " ") + "\n"
+	b.WriteByte('\n')
+	return b.String()
 }
 
 func formatLevel(lvl string) string {
